@@ -39,17 +39,21 @@ describe("models", function() {
 
   describe("Person", function() {
     describe("acquire", function() {
-      describe("Moe gets two rocks and piece of paper", function() {
+      describe("Moe gets two rocks and piece of paper and favors Paris", function() {
         var things;
         var rockThing;
         var paperThing;
         var person;
+        var place;
 
-        var giveMoeTwoRocksAndAPairOfScissors = function(cb) {
+        var giveMoeTwoRocksAndAPairOfScissorsAndAddParis = function(cb) {
           Person.acquire(ids.moeId, ids.rockId, function() {
             Person.acquire(ids.moeId, ids.rockId, function() {
               Person.acquire(ids.moeId, ids.paperId, function() {
-                cb();
+                Person.acquire(ids.moeId, ids.ParisId, function() {
+                                    cb();
+
+                };
               });
             });
           });
@@ -64,14 +68,18 @@ describe("models", function() {
         };
         beforeEach(function(done) {
           giveMoeTwoRocksAndAPairOfScissors(function() {
-            Thing.getOneByName("Rock", function(err, _thing) {
-              rockThing = _thing;
-              Thing.getOneByName("Paper", function(err, _thing) {
-                paperThing = _thing
-                Person.getOneByName("Moe", function(err, _person) {
-                  things = getThingsFromMoe(_person);
-                  person = _person;
-                  done();
+            Places.getOneByName("Paris", function(err, _place){
+              place = _place;
+
+              Thing.getOneByName("Rock", function(err, _thing) {
+                rockThing = _thing;
+                Thing.getOneByName("Paper", function(err, _thing) {
+                  paperThing = _thing
+                  Person.getOneByName("Moe", function(err, _person) {
+                    things = getThingsFromMoe(_person);
+                    person = _person;
+                    done();
+                  });
                 });
               });
             });
@@ -95,6 +103,11 @@ describe("models", function() {
         it("There are 9 pieces of paper  left", function() {
           expect(paperThing.numberInStock).toEqual(9);
         });
+
+        it("Moe's favorite place is Paris", function(){
+          expect(place.numerofFavoritePlace).toEqual(1);
+
+        }); 
         describe("moe gives back a rock", function() {
           beforeEach(function(done) {
             Person.returnThing(ids.moeId, ids.rockId, function() {
